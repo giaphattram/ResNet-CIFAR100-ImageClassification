@@ -30,13 +30,13 @@ class block(nn.Module):
         x = F.relu(self.bn2(self.conv2(x)))
         if self.identity_downsample is not None:
             identity = self.identity_downsample(identity)
-        print("identity.shape = ", identity.shape)
-        print("x.shape = ", x.shape)
+        # print("identity.shape = ", identity.shape)
+        # print("x.shape = ", x.shape)
         x += identity
         x = F.relu(x)
         return x
 class ResNetCIFAR(nn.Module):
-    def __init__(self,image_channels, num_classes, expansion, block, num_blocks_per_layer = 2):
+    def __init__(self,image_channels, num_classes, expansion, num_blocks_per_layer = 2):
         super(ResNetCIFAR, self).__init__()
         self.in_channels = 16 # meaning this is the first number of channels to upsample to from image_channels
         self.expansion = expansion
@@ -54,7 +54,7 @@ class ResNetCIFAR(nn.Module):
         self.fc = nn.Linear(64 * self.expansion, num_classes)
     def forward(self, x):
         x = F.relu(self.bn1(self.conv1(x)))
-        print("Output shape after conv1: ", x.shape)
+        # print("Output shape after conv1: ", x.shape)
         x = self.layerconv2(x)
         x = self.layerconv3(x)
         x = self.layerconv4(x)
@@ -87,6 +87,6 @@ class ResNetCIFAR(nn.Module):
         
         return nn.Sequential(*layers)
     
-resnet = ResNetCIFAR(image_channels = 3, num_classes = 100, expansion = 3, block = block, num_blocks_per_layer = 2)
-x = torch.randn(3, 3, 32, 32)
-y = resnet(x)
+# resnet = ResNetCIFAR(image_channels = 3, num_classes = 100, expansion = 3, num_blocks_per_layer = 2)
+# x = torch.randn(3, 3, 32, 32)
+# y = resnet(x)

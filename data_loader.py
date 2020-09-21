@@ -14,15 +14,40 @@ from torchvision import transforms
 import numpy as np
 from CIFAR import CIFAR
 
+def get_loader(transform = None, mode = 'train', batch_size = 1, data_folder = './data', num_workers = 0):
+    """
+        Returns the data loader
+    """
+    assert mode in ['train', 'test']
+    
+    if mode == 'test':
+        assert batch_size == 1
+        
+    
+    dataset = CIFAR100Dataset(mode = mode, batch_size = batch_size, transform = transform, data_folder = data_folder)
+    if mode == 'train':
+        # create a batch sampler
+        initial_sampler = data.sampler.SubsetRandomSampler(indices = dataset.get_train_indices())
+        # data loader for dataset
+        data_loader = data.DataLoader(dataset = dataset, num_workers = num_workers, 
+                                      batch_sampler = data.sampler.BatchSampler(sampler = initial_sampler,
+                                                                                batch_size = dataset.batch_size,
+                                                                                drop_last = False))
+    else:
+        data_loader = data.DataLoader(dataset = dataset, batch_size = dataset.batch_size, shuffle = True, num_workers = num_workers)
+        
+    return data_loader
+
 class CIFAR100Dataset(data.Dataset):
     def __init__(self, mode, batch_size = 128, transform = None, data_folder = './data'):
+        assert mode in ['train', 'test']
         if transform is None:
             if mode == 'train':
                 self.transform = transforms.Compose([transforms.ToTensor(),
                                   transforms.Normalize((0.485, 0.456, 0.406),      
                                                         (0.229, 0.224, 0.225))])
             else:
-                self.transform = transform.ToTensor()
+                self.transform = transforms.ToTensor()
         else:
             self.transform = transform
             
@@ -38,9 +63,6 @@ class CIFAR100Dataset(data.Dataset):
           Output: 3-tuple (image, class index, superclass index)
         """
         # get class index, superclass index, and filename
-        # class_idx = self.annotations['fine_label'].iloc[index]
-        # superclass_idx = self.annotations['coarse_label'].iloc[index]
-        # filename = self.annotations['filename'].iloc[index]
         class_idx = self.cifar.fine_labels[index]
         superclass_idx = self.cifar.coarse_labels[index]
         filename = self.cifar.file_names[index]
@@ -59,3 +81,4 @@ class CIFAR100Dataset(data.Dataset):
         return np.random.randint(low = 0, high = len(self.cifar.images), size = self.batch_size)
     
 dataset = CIFAR100Dataset(mode = 'train')
+loader = get_loader()

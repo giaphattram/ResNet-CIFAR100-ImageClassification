@@ -15,7 +15,7 @@ class CIFAR(object):
     def __init__(self, mode, data_folder = './data'):
         '''
         '''
-        assert mode == 'train' or mode == 'test'
+        assert mode in ['train', 'test']
         self.mode = mode
         self.data_folder = data_folder
         
@@ -24,7 +24,7 @@ class CIFAR(object):
         self.fine_labels        = self.get_fine_labels(self.data_dict)
         self.coarse_labels      = self.get_coarse_labels(self.data_dict)
         self.images             = self.get_images(self.data_dict)
-        self.image_folder       = self.save_images(self.images, self.file_names)
+        self.image_folder       = self.save_images(self.images, self.file_names) # save images to hard drive and return image folder
         self.create_annotation_file()
         
         # Create dictionaries to map indices to classes and superclasses
